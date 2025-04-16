@@ -1,0 +1,3421 @@
+# WebAssembly Opcode Table (TOML)
+# https://github.com/ohorn/wasm-opcode-table-toml
+
+[[instructions]]
+name = "unreachable"
+opcode = 0x00
+category = "control"
+stack-type = { from = [], to = [ { unreachable = true } ] }
+since = "1"
+
+[[instructions]]
+name = "nop"
+opcode = 0x01
+category = "control"
+stack-type = { from = [], to = [] }
+since = "1"
+
+[[instructions]]
+name = "block"
+opcode = 0x02
+category = "control"
+immediates = [ { type = "blocktype", name = "bt" } ]
+stack-type = { from = [ { types-of = "params(bt)" } ], to = [ { control = "block", start = "params(bt)", end = "results(bt)", label = "end" } ] }
+since = "1"
+
+[[instructions]]
+name = "loop"
+opcode = 0x03
+category = "control"
+immediates = [ { type = "blocktype", name = "bt" } ]
+stack-type = { from = [ { types-of = "params(bt)" } ], to = [ { control = "loop", start = "params(bt)", end = "results(bt)", label = "start" } ] }
+since = "1"
+
+[[instructions]]
+name = "if"
+opcode = 0x04
+category = "control"
+immediates = [ { type = "blocktype", name = "bt" } ]
+stack-type = { from = [ { types-of = "params(bt)" }, { type = "i32" } ], to = [ { control = "if", start = "params(bt)", end = "results(bt)", label = "end" } ] }
+since = "1"
+
+[[instructions]]
+name = "else"
+opcode = 0x05
+category = "control"
+since = "1"
+
+[[instructions]]
+name = "end"
+opcode = 0x0B
+category = "control"
+since = "1"
+
+[[instructions]]
+name = "br"
+opcode = 0x0C
+category = "control"
+immediates = [ { type = "labelidx", name = "l" } ]
+stack-type = { from = [ { types-of = "l" } ], to = [ { unreachable = true } ] }
+since = "1"
+
+[[instructions]]
+name = "br_if"
+opcode = 0x0D
+category = "control"
+immediates = [ { type = "labelidx", name = "l" } ]
+stack-type = { from = [ { types-of = "l" }, { type = "i32" } ], to = [ { types-of = "l" } ] }
+since = "1"
+
+[[instructions]]
+name = "br_table"
+opcode = 0x0E
+category = "control"
+immediates = [ { type = "list<labelidx>", name = "l*" }, { type = "labelidx", name = "l" } ]
+stack-type = { from = [ { types-of = "l" }, { type = "i32" } ], to = [ { unreachable = true } ] }
+since = "1"
+
+[[instructions]]
+name = "return"
+opcode = 0x0F
+category = "control"
+stack-type = { from = [ { type-of = "results(F)" } ], to = [ { unreachable = true } ] }
+since = "1"
+
+[[instructions]]
+name = "call"
+opcode = 0x10
+category = "control"
+immediates = [ { type = "funcidx", name = "x" } ]
+stack-type = { from = [ { types-of = "params(x)" } ], to = [ { types-of = "results(x)" } ] }
+since = "1"
+
+[[instructions]]
+name = "call_indirect"
+opcode = 0x11
+category = "control"
+immediates = [ { type = "tableidx", name = "x", binary-order = 1 }, { type = "typeidx", name = "y", binary-order = 0 } ]
+stack-type = { from = [ { types-of = "params(y)" }, { type = "i32" } ], to = [ { types-of = "results(y)" } ] }
+since = "1"
+
+[[instructions]]
+name = "drop"
+opcode = 0x1A
+category = "parametric"
+stack-type = { from = [ { type = "T" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "select"
+variant = "select"
+opcode = 0x1B
+category = "parametric"
+stack-type = { from = [ { type = "T" }, { type = "T" }, { type = "i32" } ], to = [ { type = "T" } ] }
+since = "1"
+
+[[instructions]]
+name = "select"
+variant = "select-t"
+opcode = 0x1C
+category = "parametric"
+immediates = [ { type = "list<valtype>", name = "t" } ]
+stack-type = { from = [ { types-of = "t" }, { types-of = "t" }, { type = "i32" } ], to = [ { types-of = "t" } ] }
+feature = "reference-types"
+since = "2"
+
+[[instructions]]
+name = "local.get"
+opcode = 0x20
+category = "variable"
+immediates = [ { type = "localidx", name = "x" } ]
+stack-type = { from = [], to = [ { type-of = "x" } ] }
+since = "1"
+
+[[instructions]]
+name = "local.set"
+opcode = 0x21
+category = "variable"
+immediates = [ { type = "localidx", name = "x" } ]
+stack-type = { from = [ { type-of = "x" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "local.tee"
+opcode = 0x22
+category = "variable"
+immediates = [ { type = "localidx", name = "x" } ]
+stack-type = { from = [ { type-of = "x" } ], to = [ { type-of = "x" } ] }
+since = "1"
+
+[[instructions]]
+name = "global.get"
+opcode = 0x23
+category = "variable"
+immediates = [ { type = "globalidx", name = "x" } ]
+stack-type = { from = [], to = [ { type-of = "x" } ] }
+since = "1"
+
+[[instructions]]
+name = "global.set"
+opcode = 0x24
+category = "variable"
+immediates = [ { type = "globalidx", name = "x" } ]
+stack-type = { from = [ { type-of = "x" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "table.get"
+opcode = 0x25
+category = "table"
+immediates = [ { type = "tableidx", name = "x" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type-of = "x" } ] }
+feature = "reference-types"
+since = "2"
+
+[[instructions]]
+name = "table.set"
+opcode = 0x26
+category = "table"
+immediates = [ { type = "tableidx", name = "x" } ]
+stack-type = { from = [ { type = "i32" }, { type-of = "x" } ], to = [] }
+feature = "reference-types"
+since = "2"
+
+[[instructions]]
+name = "i32.load"
+opcode = 0x28
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.load"
+opcode = 0x29
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.load"
+opcode = 0x2A
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.load"
+opcode = 0x2B
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.load8_s"
+opcode = 0x2C
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.load8_u"
+opcode = 0x2D
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.load16_s"
+opcode = 0x2E
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.load16_u"
+opcode = 0x2F
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.load8_s"
+opcode = 0x30
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.load8_u"
+opcode = 0x31
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.load16_s"
+opcode = 0x32
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.load16_u"
+opcode = 0x33
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.load32_s"
+opcode = 0x34
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.load32_u"
+opcode = 0x35
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.store"
+opcode = 0x36
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "i64.store"
+opcode = 0x37
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "f32.store"
+opcode = 0x38
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "f32" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "f64.store"
+opcode = 0x39
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "f64" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "i32.store8"
+opcode = 0x3A
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "i32.store16"
+opcode = 0x3B
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "i64.store8"
+opcode = 0x3C
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "i64.store16"
+opcode = 0x3D
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "i64.store32"
+opcode = 0x3E
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [] }
+since = "1"
+
+[[instructions]]
+name = "memory.size"
+opcode = 0x3F
+category = "memory"
+immediates = [ { type = "reserved" } ]
+stack-type = { from = [], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "memory.grow"
+opcode = 0x40
+category = "memory"
+immediates = [ { type = "reserved" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.const"
+opcode = 0x41
+category = "numeric"
+immediates = [ { type = "i32", name = "n" } ]
+stack-type = { from = [], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.const"
+opcode = 0x42
+category = "numeric"
+immediates = [ { type = "i64", name = "n" } ]
+stack-type = { from = [], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.const"
+opcode = 0x43
+category = "numeric"
+immediates = [ { type = "f32", name = "z" } ]
+stack-type = { from = [], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.const"
+opcode = 0x44
+category = "numeric"
+immediates = [ { type = "f64", name = "z" } ]
+stack-type = { from = [], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.eqz"
+opcode = 0x45
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.eq"
+opcode = 0x46
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.ne"
+opcode = 0x47
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.lt_s"
+opcode = 0x48
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.lt_u"
+opcode = 0x49
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.gt_s"
+opcode = 0x4A
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.gt_u"
+opcode = 0x4B
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.le_s"
+opcode = 0x4C
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.le_u"
+opcode = 0x4D
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.ge_s"
+opcode = 0x4E
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.ge_u"
+opcode = 0x4F
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.eqz"
+opcode = 0x50
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.eq"
+opcode = 0x51
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.ne"
+opcode = 0x52
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.lt_s"
+opcode = 0x53
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.lt_u"
+opcode = 0x54
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.gt_s"
+opcode = 0x55
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.gt_u"
+opcode = 0x56
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.le_s"
+opcode = 0x57
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.le_u"
+opcode = 0x58
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.ge_s"
+opcode = 0x59
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.ge_u"
+opcode = 0x5A
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.eq"
+opcode = 0x5B
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.ne"
+opcode = 0x5C
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.lt"
+opcode = 0x5D
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.gt"
+opcode = 0x5E
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.le"
+opcode = 0x5F
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.ge"
+opcode = 0x60
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.eq"
+opcode = 0x61
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.ne"
+opcode = 0x62
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.lt"
+opcode = 0x63
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.gt"
+opcode = 0x64
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.le"
+opcode = 0x65
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.ge"
+opcode = 0x66
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.clz"
+opcode = 0x67
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.ctz"
+opcode = 0x68
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.popcnt"
+opcode = 0x69
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.add"
+opcode = 0x6A
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.sub"
+opcode = 0x6B
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.mul"
+opcode = 0x6C
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.div_s"
+opcode = 0x6D
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.div_u"
+opcode = 0x6E
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.rem_s"
+opcode = 0x6F
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.rem_u"
+opcode = 0x70
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.and"
+opcode = 0x71
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.or"
+opcode = 0x72
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.xor"
+opcode = 0x73
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.shl"
+opcode = 0x74
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.shr_s"
+opcode = 0x75
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.shr_u"
+opcode = 0x76
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.rotl"
+opcode = 0x77
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.rotr"
+opcode = 0x78
+category = "numeric"
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.clz"
+opcode = 0x79
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.ctz"
+opcode = 0x7A
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.popcnt"
+opcode = 0x7B
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.add"
+opcode = 0x7C
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.sub"
+opcode = 0x7D
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.mul"
+opcode = 0x7E
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.div_s"
+opcode = 0x7F
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.div_u"
+opcode = 0x80
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.rem_s"
+opcode = 0x81
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.rem_u"
+opcode = 0x82
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.and"
+opcode = 0x83
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.or"
+opcode = 0x84
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.xor"
+opcode = 0x85
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.shl"
+opcode = 0x86
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.shr_s"
+opcode = 0x87
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.shr_u"
+opcode = 0x88
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.rotl"
+opcode = 0x89
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.rotr"
+opcode = 0x8A
+category = "numeric"
+stack-type = { from = [ { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.abs"
+opcode = 0x8B
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.neg"
+opcode = 0x8C
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.ceil"
+opcode = 0x8D
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.floor"
+opcode = 0x8E
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.trunc"
+opcode = 0x8F
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.nearest"
+opcode = 0x90
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.sqrt"
+opcode = 0x91
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.add"
+opcode = 0x92
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.sub"
+opcode = 0x93
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.mul"
+opcode = 0x94
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.div"
+opcode = 0x95
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.min"
+opcode = 0x96
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.max"
+opcode = 0x97
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.copysign"
+opcode = 0x98
+category = "numeric"
+stack-type = { from = [ { type = "f32" }, { type = "f32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.abs"
+opcode = 0x99
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.neg"
+opcode = 0x9A
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.ceil"
+opcode = 0x9B
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.floor"
+opcode = 0x9C
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.trunc"
+opcode = 0x9D
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.nearest"
+opcode = 0x9E
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.sqrt"
+opcode = 0x9F
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.add"
+opcode = 0xA0
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.sub"
+opcode = 0xA1
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.mul"
+opcode = 0xA2
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.div"
+opcode = 0xA3
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.min"
+opcode = 0xA4
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.max"
+opcode = 0xA5
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.copysign"
+opcode = 0xA6
+category = "numeric"
+stack-type = { from = [ { type = "f64" }, { type = "f64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.wrap_i64"
+opcode = 0xA7
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.trunc_f32_s"
+opcode = 0xA8
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.trunc_f32_u"
+opcode = 0xA9
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.trunc_f64_s"
+opcode = 0xAA
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.trunc_f64_u"
+opcode = 0xAB
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.extend_i32_s"
+opcode = 0xAC
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.extend_i32_u"
+opcode = 0xAD
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.trunc_f32_s"
+opcode = 0xAE
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.trunc_f32_u"
+opcode = 0xAF
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.trunc_f64_s"
+opcode = 0xB0
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.trunc_f64_u"
+opcode = 0xB1
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.convert_i32_s"
+opcode = 0xB2
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.convert_i32_u"
+opcode = 0xB3
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.convert_i64_s"
+opcode = 0xB4
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.convert_i64_u"
+opcode = 0xB5
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.demote_f64"
+opcode = 0xB6
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.convert_i32_s"
+opcode = 0xB7
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.convert_i32_u"
+opcode = 0xB8
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.convert_i64_s"
+opcode = 0xB9
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.convert_i64_u"
+opcode = 0xBA
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.promote_f32"
+opcode = 0xBB
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.reinterpret_f32"
+opcode = 0xBC
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "i32" } ] }
+since = "1"
+
+[[instructions]]
+name = "i64.reinterpret_f64"
+opcode = 0xBD
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "i64" } ] }
+since = "1"
+
+[[instructions]]
+name = "f32.reinterpret_i32"
+opcode = 0xBE
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "f32" } ] }
+since = "1"
+
+[[instructions]]
+name = "f64.reinterpret_i64"
+opcode = 0xBF
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "f64" } ] }
+since = "1"
+
+[[instructions]]
+name = "i32.extend8_s"
+opcode = 0xC0
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "sign-extension"
+since = "2"
+
+[[instructions]]
+name = "i32.extend16_s"
+opcode = 0xC1
+category = "numeric"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "sign-extension"
+since = "2"
+
+[[instructions]]
+name = "i64.extend8_s"
+opcode = 0xC2
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "sign-extension"
+since = "2"
+
+[[instructions]]
+name = "i64.extend16_s"
+opcode = 0xC3
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "sign-extension"
+since = "2"
+
+[[instructions]]
+name = "i64.extend32_s"
+opcode = 0xC4
+category = "numeric"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "sign-extension"
+since = "2"
+
+[[instructions]]
+name = "ref.null"
+opcode = 0xD0
+category = "reference"
+immediates = [ { type = "reftype", name = "t" } ]
+stack-type = { from = [], to = [ { type = "reftype" } ] }
+feature = "reference-types"
+since = "2"
+
+[[instructions]]
+name = "ref.is_null"
+opcode = 0xD1
+category = "reference"
+stack-type = { from = [ { type = "reftype" } ], to = [ { type = "i32" } ] }
+feature = "reference-types"
+since = "2"
+
+[[instructions]]
+name = "ref.func"
+opcode = 0xD2
+category = "reference"
+immediates = [ { type = "funcidx", name = "x" } ]
+stack-type = { from = [], to = [ { type = "funcref" } ] }
+feature = "reference-types"
+since = "2"
+
+[[instructions]]
+name = "i32.trunc_sat_f32_s"
+opcode = [0xFC, 0]
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "i32" } ] }
+feature = "saturating-float-to-int"
+since = "2"
+
+[[instructions]]
+name = "i32.trunc_sat_f32_u"
+opcode = [0xFC, 1]
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "i32" } ] }
+feature = "saturating-float-to-int"
+since = "2"
+
+[[instructions]]
+name = "i32.trunc_sat_f64_s"
+opcode = [0xFC, 2]
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "i32" } ] }
+feature = "saturating-float-to-int"
+since = "2"
+
+[[instructions]]
+name = "i32.trunc_sat_f64_u"
+opcode = [0xFC, 3]
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "i32" } ] }
+feature = "saturating-float-to-int"
+since = "2"
+
+[[instructions]]
+name = "i64.trunc_sat_f32_s"
+opcode = [0xFC, 4]
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "i64" } ] }
+feature = "saturating-float-to-int"
+since = "2"
+
+[[instructions]]
+name = "i64.trunc_sat_f32_u"
+opcode = [0xFC, 5]
+category = "numeric"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "i64" } ] }
+feature = "saturating-float-to-int"
+since = "2"
+
+[[instructions]]
+name = "i64.trunc_sat_f64_s"
+opcode = [0xFC, 6]
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "i64" } ] }
+feature = "saturating-float-to-int"
+since = "2"
+
+[[instructions]]
+name = "i64.trunc_sat_f64_u"
+opcode = [0xFC, 7]
+category = "numeric"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "i64" } ] }
+feature = "saturating-float-to-int"
+since = "2"
+
+[[instructions]]
+name = "memory.init"
+opcode = [0xFC, 8]
+category = "memory"
+immediates = [ { type = "dataidx", name = "x" }, { type = "reserved" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "bulk-memory"
+since = "2"
+
+[[instructions]]
+name = "data.drop"
+opcode = [0xFC, 9]
+category = "memory"
+immediates = [ { type = "dataidx", name = "x" } ]
+stack-type = { from = [], to = [] }
+feature = "bulk-memory"
+since = "2"
+
+[[instructions]]
+name = "memory.copy"
+opcode = [0xFC, 10]
+category = "memory"
+immediates = [ { type = "reserved" }, { type = "reserved" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "bulk-memory"
+since = "2"
+
+[[instructions]]
+name = "memory.fill"
+opcode = [0xFC, 11]
+category = "memory"
+immediates = [ { type = "reserved" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "bulk-memory"
+since = "2"
+
+[[instructions]]
+name = "table.init"
+opcode = [0xFC, 12]
+category = "table"
+immediates = [ { type = "tableidx", name = "x", binary-order = 1 }, { type = "elemidx", name = "y", binary-order = 0 } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "bulk-memory"
+since = "2"
+
+[[instructions]]
+name = "elem.drop"
+opcode = [0xFC, 13]
+category = "table"
+immediates = [ { type = "elemidx", name = "x" } ]
+stack-type = { from = [], to = [] }
+feature = "bulk-memory"
+since = "2"
+
+[[instructions]]
+name = "table.copy"
+opcode = [0xFC, 14]
+category = "table"
+immediates = [ { type = "tableidx", name = "x" }, { type = "tableidx", name = "y" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "bulk-memory"
+since = "2"
+
+[[instructions]]
+name = "table.grow"
+opcode = [0xFC, 15]
+category = "table"
+immediates = [ { type = "tableidx", name = "x" } ]
+stack-type = { from = [ { type-of = "x" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "reference-types"
+since = "2"
+
+[[instructions]]
+name = "table.size"
+opcode = [0xFC, 16]
+category = "table"
+immediates = [ { type = "tableidx", name = "x" } ]
+stack-type = { from = [], to = [ { type = "i32" } ] }
+feature = "reference-types"
+since = "2"
+
+[[instructions]]
+name = "table.fill"
+opcode = [0xFC, 17]
+category = "table"
+immediates = [ { type = "tableidx", name = "x" } ]
+stack-type = { from = [ { type = "i32" }, { type-of = "x" }, { type = "i32" } ], to = [] }
+feature = "reference-types"
+since = "2"
+
+[[instructions]]
+name = "v128.load"
+opcode = [0xFD, 0]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load8x8_s"
+opcode = [0xFD, 1]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load8x8_u"
+opcode = [0xFD, 2]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load16x4_s"
+opcode = [0xFD, 3]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load16x4_u"
+opcode = [0xFD, 4]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load32x2_s"
+opcode = [0xFD, 5]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load32x2_u"
+opcode = [0xFD, 6]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load8_splat"
+opcode = [0xFD, 7]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load16_splat"
+opcode = [0xFD, 8]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load32_splat"
+opcode = [0xFD, 9]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load64_splat"
+opcode = [0xFD, 10]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.store"
+opcode = [0xFD, 11]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "v128" } ], to = [] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.const"
+opcode = [0xFD, 12]
+category = "vector"
+immediates = [ { type = "v128", name = "v" } ]
+stack-type = { from = [], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.shuffle"
+opcode = [0xFD, 13]
+category = "vector"
+immediates = [ { type = "list<laneidx,16>", name = "ls" } ]
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.swizzle"
+opcode = [0xFD, 14]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.splat"
+opcode = [0xFD, 15]
+category = "vector"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.splat"
+opcode = [0xFD, 16]
+category = "vector"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.splat"
+opcode = [0xFD, 17]
+category = "vector"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.splat"
+opcode = [0xFD, 18]
+category = "vector"
+stack-type = { from = [ { type = "i64" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.splat"
+opcode = [0xFD, 19]
+category = "vector"
+stack-type = { from = [ { type = "f32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.splat"
+opcode = [0xFD, 20]
+category = "vector"
+stack-type = { from = [ { type = "f64" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.extract_lane_s"
+opcode = [0xFD, 21]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.extract_lane_u"
+opcode = [0xFD, 22]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.replace_lane"
+opcode = [0xFD, 23]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extract_lane_s"
+opcode = [0xFD, 24]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extract_lane_u"
+opcode = [0xFD, 25]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.replace_lane"
+opcode = [0xFD, 26]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extract_lane"
+opcode = [0xFD, 27]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.replace_lane"
+opcode = [0xFD, 28]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.extract_lane"
+opcode = [0xFD, 29]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i64" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.replace_lane"
+opcode = [0xFD, 30]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" }, { type = "i64" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.extract_lane"
+opcode = [0xFD, 31]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "f32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.replace_lane"
+opcode = [0xFD, 32]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" }, { type = "f32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.extract_lane"
+opcode = [0xFD, 33]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "f64" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.replace_lane"
+opcode = [0xFD, 34]
+category = "vector"
+immediates = [ { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "v128" }, { type = "f64" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.eq"
+opcode = [0xFD, 35]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.ne"
+opcode = [0xFD, 36]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.lt_s"
+opcode = [0xFD, 37]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.lt_u"
+opcode = [0xFD, 38]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.gt_s"
+opcode = [0xFD, 39]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.gt_u"
+opcode = [0xFD, 40]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.le_s"
+opcode = [0xFD, 41]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.le_u"
+opcode = [0xFD, 42]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.ge_s"
+opcode = [0xFD, 43]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.ge_u"
+opcode = [0xFD, 44]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.eq"
+opcode = [0xFD, 45]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.ne"
+opcode = [0xFD, 46]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.lt_s"
+opcode = [0xFD, 47]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.lt_u"
+opcode = [0xFD, 48]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.gt_s"
+opcode = [0xFD, 49]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.gt_u"
+opcode = [0xFD, 50]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.le_s"
+opcode = [0xFD, 51]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.le_u"
+opcode = [0xFD, 52]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.ge_s"
+opcode = [0xFD, 53]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.ge_u"
+opcode = [0xFD, 54]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.eq"
+opcode = [0xFD, 55]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.ne"
+opcode = [0xFD, 56]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.lt_s"
+opcode = [0xFD, 57]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.lt_u"
+opcode = [0xFD, 58]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.gt_s"
+opcode = [0xFD, 59]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.gt_u"
+opcode = [0xFD, 60]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.le_s"
+opcode = [0xFD, 61]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.le_u"
+opcode = [0xFD, 62]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.ge_s"
+opcode = [0xFD, 63]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.ge_u"
+opcode = [0xFD, 64]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.eq"
+opcode = [0xFD, 65]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.ne"
+opcode = [0xFD, 66]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.lt"
+opcode = [0xFD, 67]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.gt"
+opcode = [0xFD, 68]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.le"
+opcode = [0xFD, 69]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.ge"
+opcode = [0xFD, 70]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.eq"
+opcode = [0xFD, 71]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.ne"
+opcode = [0xFD, 72]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.lt"
+opcode = [0xFD, 73]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.gt"
+opcode = [0xFD, 74]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.le"
+opcode = [0xFD, 75]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.ge"
+opcode = [0xFD, 76]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.not"
+opcode = [0xFD, 77]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.and"
+opcode = [0xFD, 78]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.andnot"
+opcode = [0xFD, 79]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.or"
+opcode = [0xFD, 80]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.xor"
+opcode = [0xFD, 81]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.bitselect"
+opcode = [0xFD, 82]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.any_true"
+opcode = [0xFD, 83]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load8_lane"
+opcode = [0xFD, 84]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" }, { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "i32" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load16_lane"
+opcode = [0xFD, 85]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" }, { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "i32" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load32_lane"
+opcode = [0xFD, 86]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" }, { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "i32" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load64_lane"
+opcode = [0xFD, 87]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" }, { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "i32" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.store8_lane"
+opcode = [0xFD, 88]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" }, { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "i32" }, { type = "v128" } ], to = [] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.store16_lane"
+opcode = [0xFD, 89]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" }, { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "i32" }, { type = "v128" } ], to = [] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.store32_lane"
+opcode = [0xFD, 90]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" }, { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "i32" }, { type = "v128" } ], to = [] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.store64_lane"
+opcode = [0xFD, 91]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" }, { type = "laneidx", name = "l" } ]
+stack-type = { from = [ { type = "i32" }, { type = "v128" } ], to = [] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load32_zero"
+opcode = [0xFD, 92]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "v128.load64_zero"
+opcode = [0xFD, 93]
+category = "vector"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.demote_f64x2_zero"
+opcode = [0xFD, 94]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.promote_low_f32x4"
+opcode = [0xFD, 95]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.abs"
+opcode = [0xFD, 96]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.neg"
+opcode = [0xFD, 97]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.popcnt"
+opcode = [0xFD, 98]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.all_true"
+opcode = [0xFD, 99]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.bitmask"
+opcode = [0xFD, 100]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.narrow_i16x8_s"
+opcode = [0xFD, 101]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.narrow_i16x8_u"
+opcode = [0xFD, 102]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.ceil"
+opcode = [0xFD, 103]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.floor"
+opcode = [0xFD, 104]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.trunc"
+opcode = [0xFD, 105]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.nearest"
+opcode = [0xFD, 106]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.shl"
+opcode = [0xFD, 107]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.shr_s"
+opcode = [0xFD, 108]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.shr_u"
+opcode = [0xFD, 109]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.add"
+opcode = [0xFD, 110]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.add_sat_s"
+opcode = [0xFD, 111]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.add_sat_u"
+opcode = [0xFD, 112]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.sub"
+opcode = [0xFD, 113]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.sub_sat_s"
+opcode = [0xFD, 114]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.sub_sat_u"
+opcode = [0xFD, 115]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.ceil"
+opcode = [0xFD, 116]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.floor"
+opcode = [0xFD, 117]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.min_s"
+opcode = [0xFD, 118]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.min_u"
+opcode = [0xFD, 119]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.max_s"
+opcode = [0xFD, 120]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.max_u"
+opcode = [0xFD, 121]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.trunc"
+opcode = [0xFD, 122]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.avgr_u"
+opcode = [0xFD, 123]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extadd_pairwise_i8x16_s"
+opcode = [0xFD, 124]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extadd_pairwise_i8x16_u"
+opcode = [0xFD, 125]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extadd_pairwise_i16x8_s"
+opcode = [0xFD, 126]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extadd_pairwise_i16x8_u"
+opcode = [0xFD, 127]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.abs"
+opcode = [0xFD, 128]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.neg"
+opcode = [0xFD, 129]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.q15mulr_sat_s"
+opcode = [0xFD, 130]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.all_true"
+opcode = [0xFD, 131]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.bitmask"
+opcode = [0xFD, 132]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.narrow_i32x4_s"
+opcode = [0xFD, 133]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.narrow_i32x4_u"
+opcode = [0xFD, 134]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extend_low_i8x16_s"
+opcode = [0xFD, 135]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extend_high_i8x16_s"
+opcode = [0xFD, 136]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extend_low_i8x16_u"
+opcode = [0xFD, 137]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extend_high_i8x16_u"
+opcode = [0xFD, 138]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.shl"
+opcode = [0xFD, 139]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.shr_s"
+opcode = [0xFD, 140]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.shr_u"
+opcode = [0xFD, 141]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.add"
+opcode = [0xFD, 142]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.add_sat_s"
+opcode = [0xFD, 143]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.add_sat_u"
+opcode = [0xFD, 144]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.sub"
+opcode = [0xFD, 145]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.sub_sat_s"
+opcode = [0xFD, 146]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.sub_sat_u"
+opcode = [0xFD, 147]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.nearest"
+opcode = [0xFD, 148]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.mul"
+opcode = [0xFD, 149]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.min_s"
+opcode = [0xFD, 150]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.min_u"
+opcode = [0xFD, 151]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.max_s"
+opcode = [0xFD, 152]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.max_u"
+opcode = [0xFD, 153]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.avgr_u"
+opcode = [0xFD, 155]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extmul_low_i8x16_s"
+opcode = [0xFD, 156]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extmul_high_i8x16_s"
+opcode = [0xFD, 157]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extmul_low_i8x16_u"
+opcode = [0xFD, 158]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.extmul_high_i8x16_u"
+opcode = [0xFD, 159]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.abs"
+opcode = [0xFD, 160]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.neg"
+opcode = [0xFD, 161]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.all_true"
+opcode = [0xFD, 163]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.bitmask"
+opcode = [0xFD, 164]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extend_low_i16x8_s"
+opcode = [0xFD, 167]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extend_high_i16x8_s"
+opcode = [0xFD, 168]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extend_low_i16x8_u"
+opcode = [0xFD, 169]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extend_high_i16x8_u"
+opcode = [0xFD, 170]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.shl"
+opcode = [0xFD, 171]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.shr_s"
+opcode = [0xFD, 172]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.shr_u"
+opcode = [0xFD, 173]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.add"
+opcode = [0xFD, 174]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.sub"
+opcode = [0xFD, 177]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.mul"
+opcode = [0xFD, 181]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.min_s"
+opcode = [0xFD, 182]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.min_u"
+opcode = [0xFD, 183]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.max_s"
+opcode = [0xFD, 184]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.max_u"
+opcode = [0xFD, 185]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.dot_i16x8_s"
+opcode = [0xFD, 186]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extmul_low_i16x8_s"
+opcode = [0xFD, 188]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extmul_high_i16x8_s"
+opcode = [0xFD, 189]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extmul_low_i16x8_u"
+opcode = [0xFD, 190]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.extmul_high_i16x8_u"
+opcode = [0xFD, 191]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.abs"
+opcode = [0xFD, 192]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.neg"
+opcode = [0xFD, 193]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.all_true"
+opcode = [0xFD, 195]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.bitmask"
+opcode = [0xFD, 196]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "i32" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.extend_low_i32x4_s"
+opcode = [0xFD, 199]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.extend_high_i32x4_s"
+opcode = [0xFD, 200]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.extend_low_i32x4_u"
+opcode = [0xFD, 201]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.extend_high_i32x4_u"
+opcode = [0xFD, 202]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.shl"
+opcode = [0xFD, 203]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.shr_s"
+opcode = [0xFD, 204]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.shr_u"
+opcode = [0xFD, 205]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "i32" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.add"
+opcode = [0xFD, 206]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.sub"
+opcode = [0xFD, 209]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.mul"
+opcode = [0xFD, 213]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.eq"
+opcode = [0xFD, 214]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.ne"
+opcode = [0xFD, 215]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.lt_s"
+opcode = [0xFD, 216]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.gt_s"
+opcode = [0xFD, 217]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.le_s"
+opcode = [0xFD, 218]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.ge_s"
+opcode = [0xFD, 219]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.extmul_low_i32x4_s"
+opcode = [0xFD, 220]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.extmul_high_i32x4_s"
+opcode = [0xFD, 221]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.extmul_low_i32x4_u"
+opcode = [0xFD, 222]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.extmul_high_i32x4_u"
+opcode = [0xFD, 223]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.abs"
+opcode = [0xFD, 224]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.neg"
+opcode = [0xFD, 225]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.sqrt"
+opcode = [0xFD, 227]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.add"
+opcode = [0xFD, 228]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.sub"
+opcode = [0xFD, 229]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.mul"
+opcode = [0xFD, 230]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.div"
+opcode = [0xFD, 231]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.min"
+opcode = [0xFD, 232]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.max"
+opcode = [0xFD, 233]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.pmin"
+opcode = [0xFD, 234]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.pmax"
+opcode = [0xFD, 235]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.abs"
+opcode = [0xFD, 236]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.neg"
+opcode = [0xFD, 237]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.sqrt"
+opcode = [0xFD, 239]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.add"
+opcode = [0xFD, 240]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.sub"
+opcode = [0xFD, 241]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.mul"
+opcode = [0xFD, 242]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.div"
+opcode = [0xFD, 243]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.min"
+opcode = [0xFD, 244]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.max"
+opcode = [0xFD, 245]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.pmin"
+opcode = [0xFD, 246]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.pmax"
+opcode = [0xFD, 247]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.trunc_sat_f32x4_s"
+opcode = [0xFD, 248]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.trunc_sat_f32x4_u"
+opcode = [0xFD, 249]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.convert_i32x4_s"
+opcode = [0xFD, 250]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.convert_i32x4_u"
+opcode = [0xFD, 251]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.trunc_sat_f64x2_s_zero"
+opcode = [0xFD, 252]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.trunc_sat_f64x2_u_zero"
+opcode = [0xFD, 253]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.convert_low_i32x4_s"
+opcode = [0xFD, 254]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.convert_low_i32x4_u"
+opcode = [0xFD, 255]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "simd"
+since = "2"
